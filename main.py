@@ -17,7 +17,7 @@ class CarDetailsDialog(QDialog):
     def __init__(self, car_data, parent=None):
         super().__init__(parent)
         self.setWindowTitle("🚗 Детали объявления")
-        self.setGeometry(100, 100, 400, 300)
+        self.setGeometry(100, 100, 450, 400)
         layout = QVBoxLayout()
         for key, value in car_data.items():
             label = QLabel(f"<b>{key}:</b> {value}")
@@ -32,11 +32,9 @@ class HelpTab(QWidget):
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout()
-
         title = QLabel("<h2>❓ Справка по программе</h2>")
         title.setStyleSheet("font-size: 16px; font-weight: bold;")
         layout.addWidget(title)
-
         instructions = QLabel("""
         <h3>Как использовать программу:</h3>
         <ol>
@@ -57,7 +55,7 @@ class HelpTab(QWidget):
         <ul>
             <li><b>Добавить ссылки</b> — добавляет введённые URL в список.</li>
             <li><b>Сохранить HTML</b> — скачивает содержимое страниц и сохраняет в указанную папку.</li>
-            <li><b>Парсинг</b> — извлекает информацию из HTML файлов (название, пробег, цена).</li>
+            <li><b>Парсинг</b> — извлекает информацию из HTML файлов (название, пробег, цена, двигатель, коробка передач).</li>
             <li><b>Показать детали</b> — открывает окно с полной информацией по выбранному автомобилю.</li>
             <li><b>Экспорт</b> — позволяет сохранить результаты в формате TXT или Excel.</li>
         </ul>
@@ -76,7 +74,6 @@ class HelpTab(QWidget):
         """)
         errors.setWordWrap(True)
         layout.addWidget(errors)
-
         layout.addStretch()
         self.setLayout(layout)
 
@@ -120,32 +117,25 @@ class ModernParserApp(QWidget):
         tabs.addTab(download_tab, "📥 Загрузка")
         tabs.addTab(parse_tab, "🔍 Парсинг")
         tabs.addTab(help_tab, "❓ Справка")
-
         self.create_download_tab(download_tab)
         self.create_parse_tab(parse_tab)
-
         main_layout.addWidget(tabs)
         self.setLayout(main_layout)
 
     def create_download_tab(self, tab):
         layout = QVBoxLayout()
-
         self.url_input = QTextEdit()
-        self.url_input.setPlaceholderText("Вставьте ссылки (по одной на строке)")
+        self.url_input.setPlaceholderText("Вставьте ссылки (по одной на строку)")
         self.url_input.setStyleSheet("background-color: #1e1e1e; color: white; border-radius: 5px;")
-
         self.add_button = QPushButton("➕ Добавить ссылки")
         self.url_list = QListWidget()
         self.url_list.setStyleSheet("background-color: #1e1e1e; color: white; border-radius: 5px;")
-
         self.folder_button = QPushButton("📁 Выбрать папку")
         self.folder_path = QLineEdit()
         self.folder_path.setPlaceholderText("Папка для сохранения")
         self.folder_path.setStyleSheet("background-color: #1e1e1e; color: white; border-radius: 5px;")
-
         self.save_all_button = QPushButton("💾 Скачать и сохранить")
         self.save_all_button.setStyleSheet("background-color: #4CAF50; color: white; padding: 10px; border-radius: 5px;")
-
         self.progress_bar_download = QProgressBar()
         self.progress_bar_download.setValue(0)
         self.progress_bar_download.setTextVisible(False)
@@ -160,7 +150,6 @@ class ModernParserApp(QWidget):
                 width: 20px;
             }
         """)
-
         layout.addWidget(QLabel("🔗 Введите ссылки:"))
         layout.addWidget(self.url_input)
         layout.addWidget(self.add_button)
@@ -171,7 +160,6 @@ class ModernParserApp(QWidget):
         layout.addWidget(self.save_all_button)
         layout.addWidget(self.progress_bar_download)
         tab.setLayout(layout)
-
         # Подключение событий
         self.add_button.clicked.connect(self.add_urls)
         self.folder_button.clicked.connect(self.select_folder)
@@ -179,7 +167,6 @@ class ModernParserApp(QWidget):
 
     def create_parse_tab(self, tab):
         layout = QVBoxLayout()
-
         self.load_single_file_button = QPushButton("📄 Выбрать один HTML-файл")
         self.load_multi_file_button = QPushButton("📂 Выбрать несколько HTML-файлов")
         self.clear_button = QPushButton("🧹 Очистить")
@@ -187,11 +174,10 @@ class ModernParserApp(QWidget):
         self.save_txt_button = QPushButton("📄 Сохранить в TXT")
         self.save_excel_button = QPushButton("📘 Сохранить в Excel")
         self.output_table = QTableWidget()
-        self.output_table.setColumnCount(3)
-        self.output_table.setHorizontalHeaderLabels(["Название", "Пробег", "Цена"])
+        self.output_table.setColumnCount(5)
+        self.output_table.setHorizontalHeaderLabels(["Название", "Пробег", "Цена", "Двигатель", "Коробка"])
         self.output_table.setStyleSheet("background-color: #1e1e1e; color: white; border-radius: 5px;")
         self.output_table.cellClicked.connect(self.show_car_details)
-
         self.progress_bar_parse = QProgressBar()
         self.progress_bar_parse.setValue(0)
         self.progress_bar_parse.setTextVisible(True)
@@ -207,23 +193,19 @@ class ModernParserApp(QWidget):
                 width: 20px;
             }
         """)
-
         parse_buttons_layout = QHBoxLayout()
         parse_buttons_layout.addWidget(self.load_single_file_button)
         parse_buttons_layout.addWidget(self.load_multi_file_button)
         parse_buttons_layout.addWidget(self.clear_button)
-
         parse_action_layout = QHBoxLayout()
         parse_action_layout.addWidget(self.show_results_button)
         parse_action_layout.addWidget(self.save_txt_button)
         parse_action_layout.addWidget(self.save_excel_button)
-
         layout.addLayout(parse_buttons_layout)
         layout.addLayout(parse_action_layout)
         layout.addWidget(self.output_table)
         layout.addWidget(self.progress_bar_parse)
         tab.setLayout(layout)
-
         # Стили кнопок
         for btn in [
             self.load_single_file_button, self.load_multi_file_button,
@@ -241,7 +223,6 @@ class ModernParserApp(QWidget):
                     background-color: #555555;
                 }
             """)
-
         # Подключение событий
         self.load_single_file_button.clicked.connect(self.select_html_file)
         self.load_multi_file_button.clicked.connect(self.select_multiple_html_files)
@@ -340,12 +321,18 @@ class ModernParserApp(QWidget):
                             price = ad.get("price")
                             attributes = [item["payload"] for item in ad.get("attributes", [])
                                           if item.get("type") == "plain"]
+
                             mileage = next((a for a in attributes if "км" in a), "Не указано")
+                            engine = next((a for a in attributes if any(k in a.lower() for k in ["л", "л.с.", "литр", "турбодизель"])), "Не указано")
+                            transmission = next((a for a in attributes if any(k in a.lower() for k in ["акпп", "автомат", "механика", "вариатор", "робот"])), "Не указано")
+
                             price_str = f"{int(price):,} ₽" if price else "Цена не указана"
                             self.results.append({
                                 "title": title,
                                 "mileage": mileage,
-                                "price": price_str
+                                "price": price_str,
+                                "engine": engine,
+                                "transmission": transmission
                             })
             except Exception as e:
                 QMessageBox.critical(self, "Ошибка", f"❌ Ошибка при обработке файла {file_path}: {e}")
@@ -357,6 +344,8 @@ class ModernParserApp(QWidget):
             self.output_table.setItem(row, 0, QTableWidgetItem(car['title']))
             self.output_table.setItem(row, 1, QTableWidgetItem(car['mileage']))
             self.output_table.setItem(row, 2, QTableWidgetItem(car['price']))
+            self.output_table.setItem(row, 3, QTableWidgetItem(car['engine']))
+            self.output_table.setItem(row, 4, QTableWidgetItem(car['transmission']))
 
     def show_car_details(self, row, column):
         car_data = self.results[row]
@@ -374,7 +363,7 @@ class ModernParserApp(QWidget):
             try:
                 with open(save_path, "w", encoding="utf-8") as f:
                     for res in self.results:
-                        line = f"{res['title']} | Пробег: {res['mileage']} | Цена: {res['price']}\n"
+                        line = f"{res['title']} | Пробег: {res['mileage']} | Цена: {res['price']} | Двигатель: {res['engine']} | Коробка: {res['transmission']}\n"
                         f.write(line)
                 QMessageBox.information(self, "Успех", "✅ Результаты успешно сохранены в TXT.")
             except Exception as e:
@@ -393,9 +382,9 @@ class ModernParserApp(QWidget):
             wb = Workbook()
             ws = wb.active
             ws.title = "Объявления"
-            ws.append(["Название", "Пробег", "Цена"])
+            ws.append(["Название", "Пробег", "Цена", "Двигатель", "Коробка"])
             for res in self.results:
-                ws.append([res["title"], res["mileage"], res["price"]])
+                ws.append([res["title"], res["mileage"], res["price"], res["engine"], res["transmission"]])
             wb.save(save_path)
             QMessageBox.information(self, "Успех", "✅ Результаты успешно сохранены в Excel.")
         except Exception as e:
